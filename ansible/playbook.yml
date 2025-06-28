@@ -1,0 +1,20 @@
+---
+- name: Provision & deploy multi-service app
+  hosts: dev_servers
+  become: yes
+
+  tasks:
+    - name: Install Docker & Compose
+      ansible.builtin.include_role:
+        name: geerlingguy.docker
+
+    - name: Clone repo
+      ansible.builtin.git:
+        repo: "https://github.com/{{ github_user }}/{{ repo_name }}.git"
+        dest: /opt/app
+        version: main
+
+    - name: Compose up
+      community.docker.docker_compose:
+        project_src: /opt/app/compose
+        state: present
