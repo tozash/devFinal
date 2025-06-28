@@ -10,6 +10,7 @@ services:
     ports: ["8080:8080"]
     env_file: .env
     networks: [app_net]
+    restart: always
     labels:
       - "com.monitoring=prometheus"
       - "com.service=backend"
