@@ -1,0 +1,39 @@
+version: "3.9"
+
+networks:
+  app_net:
+
+services:
+  backend:
+    build: ../backend
+    container_name: backend
+    ports: ["8080:8080"]
+    env_file: .env
+    networks: [app_net]
+    labels:
+      - "com.monitoring=prometheus"
+      - "com.service=backend"
+
+  frontend:
+    build: ../frontend
+    container_name: frontend
+    depends_on: [backend]
+    ports: ["3000:80"]
+    networks: [app_net]
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports: ["9090:9090"]
+    networks: [app_net]
+
+  grafana:
+    image: grafana/grafana:11.0.0
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+    ports: ["3001:3000"]
+    networks: [app_net]
